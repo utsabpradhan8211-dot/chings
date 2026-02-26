@@ -1,60 +1,33 @@
-import { useState } from 'react';
-
 const catalog = [
-  { id: 1, name: 'Kimchi Noodles', price: 129 },
-  { id: 2, name: 'Hot Garlic Noodles', price: 149 },
-  { id: 3, name: 'Cheese Ramen Bowl', price: 199 },
+  { id: 1, name: 'Kimchi Noodles', price: 129, orders: 1420, trend: '+8.2%' },
+  { id: 2, name: 'Hot Garlic Noodles', price: 149, orders: 1195, trend: '+5.4%' },
+  { id: 3, name: 'Cheese Ramen Bowl', price: 199, orders: 860, trend: '+3.1%' },
 ];
 
 export default function Products() {
-  const [cart, setCart] = useState([]);
-
-  const total = cart.reduce((sum, item) => sum + item.price, 0);
-
-  const checkout = () => {
-    const razorpayAvailable = typeof window !== 'undefined' && window.Razorpay;
-    if (razorpayAvailable) {
-      const rzp = new window.Razorpay({
-        key: 'rzp_test_1234567890',
-        amount: total * 100,
-        currency: 'INR',
-        name: "Ching's Korean",
-        description: 'Test checkout',
-        handler: () => alert('Payment successful in test mode'),
-      });
-      rzp.open();
-    } else {
-      alert('Razorpay SDK not loaded. Simulating test checkout.');
-    }
-  };
+  const totalOrders = catalog.reduce((sum, item) => sum + item.orders, 0);
 
   return (
     <section className="space-y-4">
+      <div className="glass rounded-2xl p-4">
+        <h3 className="text-sm font-semibold">Product order performance</h3>
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
+          Total orders across listed products: <span className="font-semibold">{totalOrders}</span>
+        </p>
+      </div>
+
       <div className="grid gap-4 md:grid-cols-3">
         {catalog.map((product) => (
           <article key={product.id} className="glass rounded-2xl p-4">
             <h3 className="font-semibold">{product.name}</h3>
-            <p className="text-slate-300">₹{product.price}</p>
-            <button
-              onClick={() => setCart((prev) => [...prev, product])}
-              className="mt-3 rounded-lg bg-gradient-to-r from-rose-400 to-pink-500 px-3 py-2 text-sm"
-            >
-              Add to cart
-            </button>
+            <p className="text-sm text-slate-400">MRP: ₹{product.price}</p>
+            <p className="mt-3 text-2xl font-bold text-rose-300">{product.orders}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-300">Orders this month</p>
+            <span className="mt-3 inline-block rounded-full bg-emerald-400/20 px-2 py-1 text-xs text-emerald-300">
+              Growth: {product.trend}
+            </span>
           </article>
         ))}
-      </div>
-
-      <div className="fixed bottom-4 right-4 glass-strong rounded-2xl p-4">
-        <p className="text-sm">Cart items: {cart.length}</p>
-        <p className="text-sm">Total: ₹{total}</p>
-        <button
-          disabled={!cart.length}
-          onClick={checkout}
-          className="mt-2 rounded-lg bg-gradient-to-r from-rose-400 to-pink-500 px-3 py-2 text-sm disabled:opacity-50"
-        >
-          Pay with Razorpay
-        </button>
       </div>
     </section>
   );
