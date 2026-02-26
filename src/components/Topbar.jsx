@@ -74,8 +74,8 @@ export default function Topbar({
       <input
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        placeholder="Search tables, charts, products..."
-        className="min-w-60 flex-1 rounded-xl border border-slate-300/50 bg-white/70 px-4 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-500 focus:border-brand-rose dark:border-white/20 dark:bg-black/20 dark:text-white dark:placeholder:text-slate-300"
+        placeholder="Search tables, charts, orders, complaints..."
+        className="w-full flex-1 rounded-xl border border-slate-300/50 bg-white/70 px-4 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-500 focus:border-brand-rose dark:border-white/20 dark:bg-black/20 dark:text-white dark:placeholder:text-slate-300 sm:min-w-60"
       />
 
       <div className="relative" ref={notificationsRef}>

@@ -7,6 +7,7 @@ import OrdersPanel from './components/OrdersPanel';
 import AnalyticsCharts from './components/AnalyticsCharts';
 import Insights from './components/Insights';
 import Products from './components/Products';
+import ComplaintsPanel from './components/ComplaintsPanel';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 export default function App() {
@@ -45,6 +46,7 @@ export default function App() {
     if (activeTab === 'Analytics') return <AnalyticsCharts />;
     if (activeTab === 'Insights') return <Insights />;
     if (activeTab === 'Orders') return <OrdersPanel search={search} isAdmin={isAdmin} />;
+    if (activeTab === 'Complaints') return <ComplaintsPanel search={search} isAdmin={isAdmin} />;
     if (activeTab === 'Products') return <Products />;
 
     return null;

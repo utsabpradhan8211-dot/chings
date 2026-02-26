@@ -1,10 +1,6 @@
-const tabs = [
-  { label: 'Dashboard', icon: '🏙️' },
-  { label: 'Analytics', icon: '📈' },
-  { label: 'Insights', icon: '🧠' },
-  { label: 'Orders', icon: '🍜' },
-  { label: 'Products', icon: '🛒' },
-];
+codex/create-separate-complaints-tab
+const tabs = ['Dashboard', 'Analytics', 'Insights', 'Orders', 'Complaints', 'Products'];
+
 
 const koreanVisuals = [
   {
@@ -18,10 +14,11 @@ const koreanVisuals = [
       'https://images.unsplash.com/photo-1498654896293-37aacf113fd9?auto=format&fit=crop&w=600&q=80',
   },
 ];
+ main
 
 export default function Sidebar({ activeTab, setActiveTab }) {
   return (
-    <aside className="glass h-full w-full rounded-3xl p-5 lg:w-72">
+    <aside className="glass h-full w-full rounded-3xl p-4 sm:p-5 lg:w-72">
       <div className="rounded-2xl bg-gradient-to-r from-brand-rose via-brand-pink to-brand-plum p-[1px] shadow-glow">
         <div className="rounded-2xl bg-white/90 px-4 py-3 dark:bg-slate-950/80">
           <p className="text-sm text-slate-500 dark:text-slate-300">Brand</p>
