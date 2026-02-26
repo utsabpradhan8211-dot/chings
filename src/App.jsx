@@ -51,7 +51,13 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen p-4 md:p-6">
+      <div
+        className={`min-h-screen p-4 transition-colors duration-300 md:p-6 ${
+          darkMode
+            ? 'bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100'
+            : 'bg-gradient-to-br from-slate-100 via-white to-rose-50 text-slate-900'
+        }`}
+      >
         <div className="mx-auto grid max-w-[1600px] gap-4 lg:grid-cols-[280px_1fr]">
           <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
           <main className="space-y-4">

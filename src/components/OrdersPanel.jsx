@@ -23,10 +23,12 @@ const initialRows = [
 ];
 
 const statusClasses = {
-  Delivered: 'bg-emerald-400/20 text-emerald-300',
-  Pending: 'bg-amber-400/20 text-amber-300',
-  Resolved: 'bg-sky-400/20 text-sky-300',
+  Delivered: 'bg-emerald-400/20 text-emerald-500 dark:text-emerald-300',
+  Pending: 'bg-amber-400/20 text-amber-500 dark:text-amber-300',
+  Resolved: 'bg-sky-400/20 text-sky-500 dark:text-sky-300',
 };
+
+const availableStatuses = ['Delivered', 'Pending', 'Resolved'];
 
 function Counter({ value }) {
   return (
@@ -100,6 +102,10 @@ export default function OrdersPanel({ search, showRecentActivity = false }) {
       setEditing('');
       setInputValue('');
     }
+  };
+
+  const updateRowStatus = (id, nextStatus) => {
+    setRows((prev) => prev.map((row) => (row.id === id ? { ...row, status: nextStatus } : row)));
   };
 
   return (
@@ -179,7 +185,7 @@ export default function OrdersPanel({ search, showRecentActivity = false }) {
       <div className="glass overflow-x-auto rounded-2xl p-4">
         <h3 className="mb-3 text-sm font-semibold">Real-time orders table</h3>
         <table className="w-full text-left text-sm">
-          <thead className="text-slate-300">
+          <thead className="text-slate-500 dark:text-slate-300">
             <tr>
               <th className="pb-2">Order ID</th>
               <th className="pb-2">City</th>
@@ -194,11 +200,24 @@ export default function OrdersPanel({ search, showRecentActivity = false }) {
                 <td>{row.city}</td>
                 <td>₹{row.value}</td>
                 <td>
-                  <span
-                    className={`rounded-full px-2 py-1 text-xs ${statusClasses[row.status]}`}
-                  >
-                    {row.status}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`rounded-full px-2 py-1 text-xs ${statusClasses[row.status]}`}
+                    >
+                      {row.status}
+                    </span>
+                    <select
+                      value={row.status}
+                      onChange={(e) => updateRowStatus(row.id, e.target.value)}
+                      className="rounded-lg border border-slate-300/40 bg-transparent px-2 py-1 text-xs"
+                    >
+                      {availableStatuses.map((item) => (
+                        <option key={item} value={item} className="text-slate-900">
+                          {item}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </td>
               </tr>
             ))}
