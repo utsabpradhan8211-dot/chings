@@ -16,14 +16,14 @@ body {
 }
 
 .glass {
-  @apply border border-slate-300/40 bg-white/70 backdrop-blur-xl dark:border-white/20 dark:bg-white/10;
+  @apply border border-rose-300/40 bg-rose-50/70 backdrop-blur-xl dark:border-brand-sea/30 dark:bg-brand-navy/40;
 }
 
 .glass-strong {
-  @apply border border-slate-300/50 bg-white/90 backdrop-blur-2xl dark:border-white/30 dark:bg-white/20;
+  @apply border border-rose-300/50 bg-rose-50/90 backdrop-blur-2xl dark:border-brand-sea/40 dark:bg-brand-navy/60;
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(251, 113, 133, 0.6) transparent;
+  scrollbar-color: rgba(239, 68, 68, 0.55) transparent;
 }

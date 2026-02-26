@@ -55,8 +55,8 @@ export default function App() {
       <div
         className={`min-h-screen p-4 transition-colors duration-300 md:p-6 ${
           darkMode
-            ? 'bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100'
-            : 'bg-gradient-to-br from-slate-100 via-white to-brand-rose/10 text-slate-900'
+            ? 'bg-gradient-to-br from-brand-navy via-slate-900 to-brand-deepSea/30 text-slate-100'
+            : 'bg-gradient-to-br from-rose-50 via-red-50 to-rose-100 text-red-950'
         }`}
       >
         <div className="mx-auto grid max-w-[1600px] gap-4 lg:grid-cols-[280px_1fr]">
