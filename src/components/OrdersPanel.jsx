@@ -4,15 +4,11 @@ import { AnimatePresence, motion } from 'framer-motion';
 const keys = [
   ['received', 'Orders Received'],
   ['delivered', 'Orders Delivered'],
-  ['complaints_received', 'Complaints Received'],
-  ['complaints_resolved', 'Complaints Resolved'],
 ];
 
 const initial = {
   received: 1247,
   delivered: 1156,
-  complaints_received: 23,
-  complaints_resolved: 19,
 };
 
 const initialRows = [
@@ -20,12 +16,6 @@ const initialRows = [
   { id: 'CK-1092', city: 'Delhi', status: 'Pending', value: 990 },
   { id: 'CK-1093', city: 'Bengaluru', status: 'Resolved', value: 1490 },
   { id: 'CK-1094', city: 'Pune', status: 'Delivered', value: 1190 },
-];
-
-const complaintRows = [
-  { id: 'CMP-201', city: 'Delhi', issue: 'Late delivery', status: 'Open' },
-  { id: 'CMP-202', city: 'Mumbai', issue: 'Damaged pack', status: 'Open' },
-  { id: 'CMP-203', city: 'Pune', issue: 'Wrong item', status: 'Resolved' },
 ];
 
 const statusClasses = {
@@ -60,9 +50,7 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
 
   const status = useMemo(() => {
     const pending = ordersData.received - ordersData.delivered;
-    const openComplaints =
-      ordersData.complaints_received - ordersData.complaints_resolved;
-    return { pending, openComplaints };
+    return { pending };
   }, [ordersData]);
 
   const progress = Math.min(
@@ -88,19 +76,11 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
           nextReceived,
           prev.delivered + Math.floor(Math.random() * 3),
         );
-        const nextComplaintsReceived =
-          prev.complaints_received + (Math.random() > 0.75 ? 1 : 0);
-        const nextComplaintsResolved = Math.min(
-          nextComplaintsReceived,
-          prev.complaints_resolved + (Math.random() > 0.8 ? 1 : 0),
-        );
 
         return {
           ...prev,
           received: nextReceived,
           delivered: nextDelivered,
-          complaints_received: nextComplaintsReceived,
-          complaints_resolved: nextComplaintsResolved,
         };
       });
       setRows((prev) =>
@@ -136,22 +116,6 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
       }
 
       setOrdersData((prev) => ({ ...prev, received: nextValue, delivered: nextPairedValue }));
-    } else if (editing === 'complaints_received') {
-      if (Number.isNaN(nextPairedValue)) {
-        setOverrideMessage('Please provide resolved complaints along with received complaints.');
-        return;
-      }
-
-      if (nextPairedValue > nextValue) {
-        setOverrideMessage('Not valid: resolved complaints cannot be more than complaints received.');
-        return;
-      }
-
-      setOrdersData((prev) => ({
-        ...prev,
-        complaints_received: nextValue,
-        complaints_resolved: nextPairedValue,
-      }));
     } else if (editing === 'delivered') {
       if (nextValue > ordersData.received) {
         setOverrideMessage('Not valid: delivered orders cannot be more than received orders.');
@@ -159,13 +123,6 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
       }
 
       setOrdersData((prev) => ({ ...prev, delivered: nextValue }));
-    } else if (editing === 'complaints_resolved') {
-      if (nextValue > ordersData.complaints_received) {
-        setOverrideMessage('Not valid: resolved complaints cannot be more than complaints received.');
-        return;
-      }
-
-      setOrdersData((prev) => ({ ...prev, complaints_resolved: nextValue }));
     } else {
       setOrdersData((prev) => ({ ...prev, [editing]: nextValue }));
     }
@@ -181,7 +138,7 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
 
   return (
     <section className="space-y-4 text-slate-800 dark:text-slate-100">
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2">
         {filtered.map(([key, label]) => (
           <div key={key} className="glass rounded-2xl p-4">
             <p className="text-sm text-slate-700 dark:text-slate-300">{label}</p>
@@ -191,13 +148,7 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
                 onClick={() => {
                   setEditing(key);
                   setInputValue(String(ordersData[key]));
-                  setPairedValue(
-                    key === 'received'
-                      ? String(ordersData.delivered)
-                      : key === 'complaints_received'
-                        ? String(ordersData.complaints_resolved)
-                        : '',
-                  );
+                  setPairedValue(key === 'received' ? String(ordersData.delivered) : '');
                   setOverrideMessage('');
                 }}
                 className="mt-3 rounded-lg bg-brand-rose/20 px-2 py-1 text-xs hover:bg-brand-rose/30"
@@ -222,20 +173,20 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
             className="glass rounded-2xl p-4"
           >
             <label className="text-sm">Set {editing.replace('_', ' ')}</label>
-            <div className="mt-2 flex gap-2">
+            <div className="mt-2 flex flex-col gap-2 sm:flex-row">
               <input
                 type="number"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                className="w-40 rounded-lg border border-slate-300/60 bg-white/80 px-3 py-2 text-slate-900 placeholder:text-slate-500 dark:border-white/20 dark:bg-black/30 dark:text-slate-100 dark:placeholder:text-slate-400"
+                className="w-full rounded-lg border border-slate-300/60 bg-white/80 px-3 py-2 text-slate-900 placeholder:text-slate-500 dark:border-white/20 dark:bg-black/30 dark:text-slate-100 dark:placeholder:text-slate-400 sm:w-40"
               />
-              {(editing === 'received' || editing === 'complaints_received') && (
+              {editing === 'received' && (
                 <input
                   type="number"
                   value={pairedValue}
                   onChange={(e) => setPairedValue(e.target.value)}
-                  placeholder={editing === 'received' ? 'Delivered orders' : 'Resolved complaints'}
-                  className="w-44 rounded-lg border border-slate-300/60 bg-white/80 px-3 py-2 text-slate-900 placeholder:text-slate-500 dark:border-white/20 dark:bg-black/30 dark:text-slate-100 dark:placeholder:text-slate-400"
+                  placeholder="Delivered orders"
+                  className="w-full rounded-lg border border-slate-300/60 bg-white/80 px-3 py-2 text-slate-900 placeholder:text-slate-500 dark:border-white/20 dark:bg-black/30 dark:text-slate-100 dark:placeholder:text-slate-400 sm:w-44"
                 />
               )}
               <button
@@ -251,9 +202,9 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
       </AnimatePresence>
 
       <div className="glass rounded-2xl p-4">
-        <div className="mb-2 flex items-center justify-between">
+        <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm">Delivered / Received</p>
-          <span className="rounded-full bg-emerald-400/20 px-2 py-1 text-xs text-emerald-700 dark:text-emerald-300">
+          <span className="w-fit rounded-full bg-emerald-400/20 px-2 py-1 text-xs text-emerald-700 dark:text-emerald-300">
             {progress}% Delivered
           </span>
         </div>
@@ -268,35 +219,23 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
           <span className="rounded-full bg-amber-400/20 px-2 py-1 text-amber-700 dark:text-amber-300">
             Pending: {status.pending}
           </span>
-          <span className="rounded-full bg-brand-rose/20 px-2 py-1 text-rose-700 dark:text-brand-pink">
-            Open Complaints: {status.openComplaints}
-          </span>
           <span className="rounded-full bg-emerald-400/20 px-2 py-1 text-emerald-700 dark:text-emerald-300">
-            Resolved
+            Delivered
           </span>
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="glass rounded-2xl p-4">
-          <h3 className="text-sm font-semibold text-amber-500 dark:text-amber-300">Pending orders</h3>
-          <p className="mt-2 text-3xl font-bold">{status.pending}</p>
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
-            Live difference between orders received and delivered.
-          </p>
-        </div>
-        <div className="glass rounded-2xl p-4">
-          <h3 className="text-sm font-semibold text-brand-pink dark:text-brand-sea">Pending complaints</h3>
-          <p className="mt-2 text-3xl font-bold">{status.openComplaints}</p>
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
-            Complaints that are still open and require action.
-          </p>
-        </div>
+      <div className="glass rounded-2xl p-4">
+        <h3 className="text-sm font-semibold text-amber-500 dark:text-amber-300">Pending orders</h3>
+        <p className="mt-2 text-3xl font-bold">{status.pending}</p>
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
+          Live difference between orders received and delivered.
+        </p>
       </div>
 
       <div className="glass overflow-x-auto rounded-2xl p-4">
         <h3 className="mb-3 text-sm font-semibold">Real-time orders table</h3>
-        <table className="w-full text-left text-sm">
+        <table className="min-w-[620px] w-full text-left text-sm">
           <thead className="text-slate-600 dark:text-slate-300">
             <tr>
               <th className="pb-2">Order ID</th>
@@ -331,40 +270,6 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
                       ))}
                     </select>
                   </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="glass overflow-x-auto rounded-2xl p-4">
-        <h3 className="mb-3 text-sm font-semibold">Complaints tracker</h3>
-        <table className="w-full text-left text-sm">
-          <thead className="text-slate-600 dark:text-slate-300">
-            <tr>
-              <th className="pb-2">Complaint ID</th>
-              <th className="pb-2">City</th>
-              <th className="pb-2">Issue</th>
-              <th className="pb-2">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {complaintRows.map((item) => (
-              <tr key={item.id} className="border-t border-white/10">
-                <td className="py-2">{item.id}</td>
-                <td>{item.city}</td>
-                <td>{item.issue}</td>
-                <td>
-                  <span
-                    className={`rounded-full px-2 py-1 text-xs ${
-                      item.status === 'Open'
-                        ? 'bg-red-400/20 text-red-700 dark:text-red-300'
-                        : 'bg-emerald-400/20 text-emerald-700 dark:text-emerald-300'
-                    }`}
-                  >
-                    {item.status}
-                  </span>
                 </td>
               </tr>
             ))}
