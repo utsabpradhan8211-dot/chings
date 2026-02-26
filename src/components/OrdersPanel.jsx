@@ -22,6 +22,12 @@ const initialRows = [
   { id: 'CK-1094', city: 'Pune', status: 'Delivered', value: 1190 },
 ];
 
+const complaintRows = [
+  { id: 'CMP-201', city: 'Delhi', issue: 'Late delivery', status: 'Open' },
+  { id: 'CMP-202', city: 'Mumbai', issue: 'Damaged pack', status: 'Open' },
+  { id: 'CMP-203', city: 'Pune', issue: 'Wrong item', status: 'Resolved' },
+];
+
 const statusClasses = {
   Delivered: 'bg-emerald-400/20 text-emerald-500 dark:text-emerald-300',
   Pending: 'bg-amber-400/20 text-amber-500 dark:text-amber-300',
@@ -188,6 +194,23 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
         </div>
       </div>
 
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="glass rounded-2xl p-4">
+          <h3 className="text-sm font-semibold text-amber-500 dark:text-amber-300">Pending orders</h3>
+          <p className="mt-2 text-3xl font-bold">{status.pending}</p>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
+            Live difference between orders received and delivered.
+          </p>
+        </div>
+        <div className="glass rounded-2xl p-4">
+          <h3 className="text-sm font-semibold text-brand-pink dark:text-brand-sea">Pending complaints</h3>
+          <p className="mt-2 text-3xl font-bold">{status.openComplaints}</p>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
+            Complaints that are still open and require action.
+          </p>
+        </div>
+      </div>
+
       <div className="glass overflow-x-auto rounded-2xl p-4">
         <h3 className="mb-3 text-sm font-semibold">Real-time orders table</h3>
         <table className="w-full text-left text-sm">
@@ -225,6 +248,40 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
                       ))}
                     </select>
                   </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="glass overflow-x-auto rounded-2xl p-4">
+        <h3 className="mb-3 text-sm font-semibold">Complaints tracker</h3>
+        <table className="w-full text-left text-sm">
+          <thead className="text-slate-500 dark:text-slate-300">
+            <tr>
+              <th className="pb-2">Complaint ID</th>
+              <th className="pb-2">City</th>
+              <th className="pb-2">Issue</th>
+              <th className="pb-2">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {complaintRows.map((item) => (
+              <tr key={item.id} className="border-t border-white/10">
+                <td className="py-2">{item.id}</td>
+                <td>{item.city}</td>
+                <td>{item.issue}</td>
+                <td>
+                  <span
+                    className={`rounded-full px-2 py-1 text-xs ${
+                      item.status === 'Open'
+                        ? 'bg-red-400/20 text-red-500 dark:text-red-300'
+                        : 'bg-emerald-400/20 text-emerald-500 dark:text-emerald-300'
+                    }`}
+                  >
+                    {item.status}
+                  </span>
                 </td>
               </tr>
             ))}

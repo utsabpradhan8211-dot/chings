@@ -6,13 +6,16 @@ export default {
     extend: {
       colors: {
         brand: {
-          rose: '#fb7185',
-          pink: '#ec4899',
-          plum: '#a855f7',
+          rose: '#ef4444',
+          pink: '#dc2626',
+          plum: '#be123c',
+          navy: '#0b1f3a',
+          sea: '#2dd4bf',
+          deepSea: '#0f766e',
         },
       },
       boxShadow: {
-        glow: '0 0 24px rgba(244, 114, 182, 0.55)',
+        glow: '0 0 24px rgba(34, 197, 94, 0.35)',
       },
     },
   },
