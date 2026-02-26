@@ -33,22 +33,24 @@ export default function KPISection() {
       <section className="glass overflow-hidden rounded-2xl border border-white/20">
         <div className="grid gap-4 p-4 md:grid-cols-[1.2fr_1fr]">
           <div>
-            <p className="text-xs uppercase tracking-widest text-slate-400 dark:text-slate-300">K-Wave Campaign Board</p>
-            <h2 className="mt-1 text-lg font-semibold">Korean-inspired dashboard experience</h2>
+            <p className="text-xs uppercase tracking-widest text-slate-400 dark:text-slate-300">Business Operations Dashboard</p>
+            <h2 className="mt-1 text-lg font-semibold">Executive performance overview</h2>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              Seoul visuals and food-first storytelling are now pinned into your dashboard for a stronger Korean feel.
+              Track portfolio growth, order momentum, and market performance in one clear operational view.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-2">
             <img
-              src="https://images.unsplash.com/photo-1538485399081-7c8971301af8?auto=format&fit=crop&w=600&q=80"
-              alt="Seoul skyline"
+              src="https://images.unsplash.com/photo-1590845947670-c009801ffa74?auto=format&fit=crop&w=640&q=70&fm=jpg"
+              alt="Business district skyline"
               className="h-24 w-full rounded-xl object-cover"
+              loading="lazy"
             />
             <img
-              src="https://images.unsplash.com/photo-1553163147-622ab57be1c7?auto=format&fit=crop&w=600&q=80"
-              alt="Korean dish"
+              src="https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=640&q=70&fm=jpg"
+              alt="Restaurant menu presentation"
               className="h-24 w-full rounded-xl object-cover"
+              loading="lazy"
             />
           </div>
         </div>
