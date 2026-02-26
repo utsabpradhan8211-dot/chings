@@ -29,9 +29,9 @@ const complaintRows = [
 ];
 
 const statusClasses = {
-  Delivered: 'bg-emerald-400/20 text-emerald-500 dark:text-emerald-300',
-  Pending: 'bg-amber-400/20 text-amber-500 dark:text-amber-300',
-  Resolved: 'bg-sky-400/20 text-sky-500 dark:text-sky-300',
+  Delivered: 'bg-emerald-400/20 text-emerald-700 dark:text-emerald-300',
+  Pending: 'bg-amber-400/20 text-amber-700 dark:text-amber-300',
+  Resolved: 'bg-sky-400/20 text-sky-700 dark:text-sky-300',
 };
 
 const availableStatuses = ['Delivered', 'Pending', 'Resolved'];
@@ -54,6 +54,8 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
   const [ordersData, setOrdersData] = useState(initial);
   const [editing, setEditing] = useState('');
   const [inputValue, setInputValue] = useState('');
+  const [pairedValue, setPairedValue] = useState('');
+  const [overrideMessage, setOverrideMessage] = useState('');
   const [rows, setRows] = useState(initialRows);
 
   const status = useMemo(() => {
@@ -80,15 +82,27 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
 
   useEffect(() => {
     const id = setInterval(() => {
-      setOrdersData((prev) => ({
-        ...prev,
-        received: prev.received + Math.floor(Math.random() * 3),
-        delivered: prev.delivered + Math.floor(Math.random() * 3),
-        complaints_received:
-          prev.complaints_received + (Math.random() > 0.75 ? 1 : 0),
-        complaints_resolved:
+      setOrdersData((prev) => {
+        const nextReceived = prev.received + Math.floor(Math.random() * 3);
+        const nextDelivered = Math.min(
+          nextReceived,
+          prev.delivered + Math.floor(Math.random() * 3),
+        );
+        const nextComplaintsReceived =
+          prev.complaints_received + (Math.random() > 0.75 ? 1 : 0);
+        const nextComplaintsResolved = Math.min(
+          nextComplaintsReceived,
           prev.complaints_resolved + (Math.random() > 0.8 ? 1 : 0),
-      }));
+        );
+
+        return {
+          ...prev,
+          received: nextReceived,
+          delivered: nextDelivered,
+          complaints_received: nextComplaintsReceived,
+          complaints_resolved: nextComplaintsResolved,
+        };
+      });
       setRows((prev) =>
         prev.map((row, i) =>
           i === 1 && Math.random() > 0.5
@@ -103,11 +117,62 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
 
   const updateMetric = () => {
     if (!editing) return;
-    if (!Number.isNaN(Number(inputValue))) {
-      setOrdersData((prev) => ({ ...prev, [editing]: Number(inputValue) }));
-      setEditing('');
-      setInputValue('');
+    setOverrideMessage('');
+
+    const nextValue = Number(inputValue);
+    const nextPairedValue = Number(pairedValue);
+
+    if (Number.isNaN(nextValue)) return;
+
+    if (editing === 'received') {
+      if (Number.isNaN(nextPairedValue)) {
+        setOverrideMessage('Please provide delivered orders along with received orders.');
+        return;
+      }
+
+      if (nextPairedValue > nextValue) {
+        setOverrideMessage('Not valid: delivered orders cannot be more than received orders.');
+        return;
+      }
+
+      setOrdersData((prev) => ({ ...prev, received: nextValue, delivered: nextPairedValue }));
+    } else if (editing === 'complaints_received') {
+      if (Number.isNaN(nextPairedValue)) {
+        setOverrideMessage('Please provide resolved complaints along with received complaints.');
+        return;
+      }
+
+      if (nextPairedValue > nextValue) {
+        setOverrideMessage('Not valid: resolved complaints cannot be more than complaints received.');
+        return;
+      }
+
+      setOrdersData((prev) => ({
+        ...prev,
+        complaints_received: nextValue,
+        complaints_resolved: nextPairedValue,
+      }));
+    } else if (editing === 'delivered') {
+      if (nextValue > ordersData.received) {
+        setOverrideMessage('Not valid: delivered orders cannot be more than received orders.');
+        return;
+      }
+
+      setOrdersData((prev) => ({ ...prev, delivered: nextValue }));
+    } else if (editing === 'complaints_resolved') {
+      if (nextValue > ordersData.complaints_received) {
+        setOverrideMessage('Not valid: resolved complaints cannot be more than complaints received.');
+        return;
+      }
+
+      setOrdersData((prev) => ({ ...prev, complaints_resolved: nextValue }));
+    } else {
+      setOrdersData((prev) => ({ ...prev, [editing]: nextValue }));
     }
+
+    setEditing('');
+    setInputValue('');
+    setPairedValue('');
   };
 
   const updateRowStatus = (id, nextStatus) => {
@@ -115,24 +180,32 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
   };
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-4 text-slate-800 dark:text-slate-100">
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {filtered.map(([key, label]) => (
           <div key={key} className="glass rounded-2xl p-4">
-            <p className="text-sm text-slate-300">{label}</p>
+            <p className="text-sm text-slate-700 dark:text-slate-300">{label}</p>
             <Counter value={ordersData[key]} />
             {isAdmin ? (
               <button
                 onClick={() => {
                   setEditing(key);
                   setInputValue(String(ordersData[key]));
+                  setPairedValue(
+                    key === 'received'
+                      ? String(ordersData.delivered)
+                      : key === 'complaints_received'
+                        ? String(ordersData.complaints_resolved)
+                        : '',
+                  );
+                  setOverrideMessage('');
                 }}
                 className="mt-3 rounded-lg bg-brand-rose/20 px-2 py-1 text-xs hover:bg-brand-rose/30"
               >
                 Manual override
               </button>
             ) : (
-              <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+              <p className="mt-3 text-xs text-slate-600 dark:text-slate-400">
                 Login as admin to use manual override
               </p>
             )}
@@ -154,8 +227,17 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
                 type="number"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                className="w-40 rounded-lg border border-white/20 bg-black/30 px-3 py-2"
+                className="w-40 rounded-lg border border-slate-300/60 bg-white/80 px-3 py-2 text-slate-900 placeholder:text-slate-500 dark:border-white/20 dark:bg-black/30 dark:text-slate-100 dark:placeholder:text-slate-400"
               />
+              {(editing === 'received' || editing === 'complaints_received') && (
+                <input
+                  type="number"
+                  value={pairedValue}
+                  onChange={(e) => setPairedValue(e.target.value)}
+                  placeholder={editing === 'received' ? 'Delivered orders' : 'Resolved complaints'}
+                  className="w-44 rounded-lg border border-slate-300/60 bg-white/80 px-3 py-2 text-slate-900 placeholder:text-slate-500 dark:border-white/20 dark:bg-black/30 dark:text-slate-100 dark:placeholder:text-slate-400"
+                />
+              )}
               <button
                 onClick={updateMetric}
                 className="rounded-lg bg-gradient-to-r from-brand-rose to-brand-pink px-3 py-2"
@@ -163,6 +245,7 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
                 Update
               </button>
             </div>
+            {overrideMessage && <p className="mt-2 text-xs text-rose-700 dark:text-rose-300">{overrideMessage}</p>}
           </motion.div>
         )}
       </AnimatePresence>
@@ -170,7 +253,7 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
       <div className="glass rounded-2xl p-4">
         <div className="mb-2 flex items-center justify-between">
           <p className="text-sm">Delivered / Received</p>
-          <span className="rounded-full bg-emerald-400/20 px-2 py-1 text-xs text-emerald-300">
+          <span className="rounded-full bg-emerald-400/20 px-2 py-1 text-xs text-emerald-700 dark:text-emerald-300">
             {progress}% Delivered
           </span>
         </div>
@@ -182,13 +265,13 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
           />
         </div>
         <div className="mt-3 flex gap-2 text-xs">
-          <span className="rounded-full bg-amber-400/20 px-2 py-1 text-amber-300">
+          <span className="rounded-full bg-amber-400/20 px-2 py-1 text-amber-700 dark:text-amber-300">
             Pending: {status.pending}
           </span>
-          <span className="rounded-full bg-brand-rose/20 px-2 py-1 text-brand-pink">
+          <span className="rounded-full bg-brand-rose/20 px-2 py-1 text-rose-700 dark:text-brand-pink">
             Open Complaints: {status.openComplaints}
           </span>
-          <span className="rounded-full bg-emerald-400/20 px-2 py-1 text-emerald-300">
+          <span className="rounded-full bg-emerald-400/20 px-2 py-1 text-emerald-700 dark:text-emerald-300">
             Resolved
           </span>
         </div>
@@ -214,7 +297,7 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
       <div className="glass overflow-x-auto rounded-2xl p-4">
         <h3 className="mb-3 text-sm font-semibold">Real-time orders table</h3>
         <table className="w-full text-left text-sm">
-          <thead className="text-slate-500 dark:text-slate-300">
+          <thead className="text-slate-600 dark:text-slate-300">
             <tr>
               <th className="pb-2">Order ID</th>
               <th className="pb-2">City</th>
@@ -239,7 +322,7 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
                       value={row.status}
                       onChange={(e) => updateRowStatus(row.id, e.target.value)}
                       disabled={!isAdmin}
-                      className="rounded-lg border border-slate-300/40 bg-transparent px-2 py-1 text-xs disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-lg border border-slate-300/60 bg-white/70 px-2 py-1 text-xs text-slate-900 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-300/40 dark:bg-transparent dark:text-slate-100"
                     >
                       {availableStatuses.map((item) => (
                         <option key={item} value={item} className="text-slate-900">
@@ -258,7 +341,7 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
       <div className="glass overflow-x-auto rounded-2xl p-4">
         <h3 className="mb-3 text-sm font-semibold">Complaints tracker</h3>
         <table className="w-full text-left text-sm">
-          <thead className="text-slate-500 dark:text-slate-300">
+          <thead className="text-slate-600 dark:text-slate-300">
             <tr>
               <th className="pb-2">Complaint ID</th>
               <th className="pb-2">City</th>
@@ -276,8 +359,8 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
                   <span
                     className={`rounded-full px-2 py-1 text-xs ${
                       item.status === 'Open'
-                        ? 'bg-red-400/20 text-red-500 dark:text-red-300'
-                        : 'bg-emerald-400/20 text-emerald-500 dark:text-emerald-300'
+                        ? 'bg-red-400/20 text-red-700 dark:text-red-300'
+                        : 'bg-emerald-400/20 text-emerald-700 dark:text-emerald-300'
                     }`}
                   >
                     {item.status}
@@ -292,7 +375,7 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
       {showRecentActivity && (
         <div className="glass rounded-2xl p-4">
           <h3 className="mb-3 text-sm font-semibold">Recent activity</h3>
-          <ul className="space-y-2 text-sm text-slate-200">
+          <ul className="space-y-2 text-sm text-slate-700 dark:text-slate-200">
             <li>• New order CK-1095 placed from Hyderabad.</li>
             <li>• Complaint #23 resolved in under 2 hours.</li>
             <li>• Delivery SLA improved by 4.1% this week.</li>
