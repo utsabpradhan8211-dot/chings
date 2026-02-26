@@ -54,6 +54,8 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
   const [ordersData, setOrdersData] = useState(initial);
   const [editing, setEditing] = useState('');
   const [inputValue, setInputValue] = useState('');
+  const [pairedValue, setPairedValue] = useState('');
+  const [overrideMessage, setOverrideMessage] = useState('');
   const [rows, setRows] = useState(initialRows);
 
   const status = useMemo(() => {
@@ -80,15 +82,27 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
 
   useEffect(() => {
     const id = setInterval(() => {
-      setOrdersData((prev) => ({
-        ...prev,
-        received: prev.received + Math.floor(Math.random() * 3),
-        delivered: prev.delivered + Math.floor(Math.random() * 3),
-        complaints_received:
-          prev.complaints_received + (Math.random() > 0.75 ? 1 : 0),
-        complaints_resolved:
+      setOrdersData((prev) => {
+        const nextReceived = prev.received + Math.floor(Math.random() * 3);
+        const nextDelivered = Math.min(
+          nextReceived,
+          prev.delivered + Math.floor(Math.random() * 3),
+        );
+        const nextComplaintsReceived =
+          prev.complaints_received + (Math.random() > 0.75 ? 1 : 0);
+        const nextComplaintsResolved = Math.min(
+          nextComplaintsReceived,
           prev.complaints_resolved + (Math.random() > 0.8 ? 1 : 0),
-      }));
+        );
+
+        return {
+          ...prev,
+          received: nextReceived,
+          delivered: nextDelivered,
+          complaints_received: nextComplaintsReceived,
+          complaints_resolved: nextComplaintsResolved,
+        };
+      });
       setRows((prev) =>
         prev.map((row, i) =>
           i === 1 && Math.random() > 0.5
@@ -103,11 +117,62 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
 
   const updateMetric = () => {
     if (!editing) return;
-    if (!Number.isNaN(Number(inputValue))) {
-      setOrdersData((prev) => ({ ...prev, [editing]: Number(inputValue) }));
-      setEditing('');
-      setInputValue('');
+    setOverrideMessage('');
+
+    const nextValue = Number(inputValue);
+    const nextPairedValue = Number(pairedValue);
+
+    if (Number.isNaN(nextValue)) return;
+
+    if (editing === 'received') {
+      if (Number.isNaN(nextPairedValue)) {
+        setOverrideMessage('Please provide delivered orders along with received orders.');
+        return;
+      }
+
+      if (nextPairedValue > nextValue) {
+        setOverrideMessage('Not valid: delivered orders cannot be more than received orders.');
+        return;
+      }
+
+      setOrdersData((prev) => ({ ...prev, received: nextValue, delivered: nextPairedValue }));
+    } else if (editing === 'complaints_received') {
+      if (Number.isNaN(nextPairedValue)) {
+        setOverrideMessage('Please provide resolved complaints along with received complaints.');
+        return;
+      }
+
+      if (nextPairedValue > nextValue) {
+        setOverrideMessage('Not valid: resolved complaints cannot be more than complaints received.');
+        return;
+      }
+
+      setOrdersData((prev) => ({
+        ...prev,
+        complaints_received: nextValue,
+        complaints_resolved: nextPairedValue,
+      }));
+    } else if (editing === 'delivered') {
+      if (nextValue > ordersData.received) {
+        setOverrideMessage('Not valid: delivered orders cannot be more than received orders.');
+        return;
+      }
+
+      setOrdersData((prev) => ({ ...prev, delivered: nextValue }));
+    } else if (editing === 'complaints_resolved') {
+      if (nextValue > ordersData.complaints_received) {
+        setOverrideMessage('Not valid: resolved complaints cannot be more than complaints received.');
+        return;
+      }
+
+      setOrdersData((prev) => ({ ...prev, complaints_resolved: nextValue }));
+    } else {
+      setOrdersData((prev) => ({ ...prev, [editing]: nextValue }));
     }
+
+    setEditing('');
+    setInputValue('');
+    setPairedValue('');
   };
 
   const updateRowStatus = (id, nextStatus) => {
@@ -126,6 +191,14 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
                 onClick={() => {
                   setEditing(key);
                   setInputValue(String(ordersData[key]));
+                  setPairedValue(
+                    key === 'received'
+                      ? String(ordersData.delivered)
+                      : key === 'complaints_received'
+                        ? String(ordersData.complaints_resolved)
+                        : '',
+                  );
+                  setOverrideMessage('');
                 }}
                 className="mt-3 rounded-lg bg-brand-rose/20 px-2 py-1 text-xs hover:bg-brand-rose/30"
               >
@@ -156,6 +229,15 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
                 onChange={(e) => setInputValue(e.target.value)}
                 className="w-40 rounded-lg border border-white/20 bg-black/30 px-3 py-2"
               />
+              {(editing === 'received' || editing === 'complaints_received') && (
+                <input
+                  type="number"
+                  value={pairedValue}
+                  onChange={(e) => setPairedValue(e.target.value)}
+                  placeholder={editing === 'received' ? 'Delivered orders' : 'Resolved complaints'}
+                  className="w-44 rounded-lg border border-white/20 bg-black/30 px-3 py-2"
+                />
+              )}
               <button
                 onClick={updateMetric}
                 className="rounded-lg bg-gradient-to-r from-brand-rose to-brand-pink px-3 py-2"
@@ -163,6 +245,7 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
                 Update
               </button>
             </div>
+            {overrideMessage && <p className="mt-2 text-xs text-rose-300">{overrideMessage}</p>}
           </motion.div>
         )}
       </AnimatePresence>
