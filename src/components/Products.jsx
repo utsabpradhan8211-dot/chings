@@ -1,7 +1,49 @@
 const catalog = [
-  { id: 1, name: 'Kimchi Noodles', price: 129, orders: 1420, trend: '+8.2%' },
-  { id: 2, name: 'Hot Garlic Noodles', price: 149, orders: 1195, trend: '+5.4%' },
-  { id: 3, name: 'Cheese Ramen Bowl', price: 199, orders: 860, trend: '+3.1%' },
+  {
+    id: 1,
+    name: 'Korean Fire Noodles',
+    category: 'Noodles',
+    price: 249,
+    orders: 1560,
+    trend: '+8.7%',
+    rating: 4.8,
+  },
+  {
+    id: 2,
+    name: 'Kimchi Fried Rice',
+    category: 'Rice Bowls',
+    price: 219,
+    orders: 1385,
+    trend: '+6.1%',
+    rating: 4.6,
+  },
+  {
+    id: 3,
+    name: 'Crispy Korean Corn',
+    category: 'Starters',
+    price: 149,
+    orders: 1140,
+    trend: '+5.3%',
+    rating: 4.5,
+  },
+  {
+    id: 4,
+    name: 'Bibimbap',
+    category: 'Rice Bowls',
+    price: 259,
+    orders: 980,
+    trend: '+4.4%',
+    rating: 4.7,
+  },
+  {
+    id: 5,
+    name: 'Bulgogi Bowl',
+    category: 'Bestsellers',
+    price: 299,
+    orders: 910,
+    trend: '+4.0%',
+    rating: 4.7,
+  },
 ];
 
 export default function Products() {
@@ -12,20 +54,22 @@ export default function Products() {
       <div className="glass rounded-2xl p-4">
         <h3 className="text-sm font-semibold">Product order performance</h3>
         <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
-          Total orders across listed products: <span className="font-semibold">{totalOrders}</span>
+          Total orders across listed menu items: <span className="font-semibold">{totalOrders}</span>
         </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
         {catalog.map((product) => (
           <article key={product.id} className="glass rounded-2xl p-4">
-            <h3 className="font-semibold">{product.name}</h3>
+            <p className="text-xs font-medium uppercase tracking-wide text-rose-300">{product.category}</p>
+            <h3 className="mt-1 font-semibold">{product.name}</h3>
             <p className="text-sm text-slate-400">MRP: ₹{product.price}</p>
             <p className="mt-3 text-2xl font-bold text-rose-300">{product.orders}</p>
             <p className="text-xs text-slate-500 dark:text-slate-300">Orders this month</p>
-            <span className="mt-3 inline-block rounded-full bg-emerald-400/20 px-2 py-1 text-xs text-emerald-300">
-              Growth: {product.trend}
-            </span>
+            <div className="mt-3 flex items-center justify-between text-xs">
+              <span className="rounded-full bg-emerald-400/20 px-2 py-1 text-emerald-300">Growth: {product.trend}</span>
+              <span className="font-medium text-amber-300">★ {product.rating}</span>
+            </div>
           </article>
         ))}
       </div>
