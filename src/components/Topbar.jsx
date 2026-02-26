@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 const notificationItems = [
   { id: 1, title: 'Order CK-1098 delayed', detail: 'Delivery delayed by 12 mins in Bengaluru.' },
@@ -22,8 +22,28 @@ export default function Topbar({
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [authMessage, setAuthMessage] = useState('');
+  const notificationsRef = useRef(null);
+  const adminMenuRef = useRef(null);
 
   const unreadCount = useMemo(() => notifications.length, [notifications.length]);
+
+  useEffect(() => {
+    const closePopupsOnOutsideClick = (event) => {
+      const clickedInsideNotifications = notificationsRef.current?.contains(event.target);
+      const clickedInsideAdminMenu = adminMenuRef.current?.contains(event.target);
+
+      if (!clickedInsideNotifications && !clickedInsideAdminMenu) {
+        setShowNotifications(false);
+        setShowAdminMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', closePopupsOnOutsideClick);
+
+    return () => {
+      document.removeEventListener('mousedown', closePopupsOnOutsideClick);
+    };
+  }, []);
 
   const handleAdminLogin = () => {
     if (username === 'admin' && password === 'admin') {
@@ -58,7 +78,7 @@ export default function Topbar({
         className="min-w-60 flex-1 rounded-xl border border-slate-300/50 bg-white/70 px-4 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-500 focus:border-brand-rose dark:border-white/20 dark:bg-black/20 dark:text-white dark:placeholder:text-slate-300"
       />
 
-      <div className="relative">
+      <div className="relative" ref={notificationsRef}>
         <button
           onClick={() => {
             setShowNotifications((prev) => !prev);
@@ -104,7 +124,7 @@ export default function Topbar({
         {darkMode ? '☀️ Light' : '🌙 Dark'}
       </button>
 
-      <div className="relative ml-auto">
+      <div className="relative ml-auto" ref={adminMenuRef}>
         <button
           onClick={() => {
             setShowAdminMenu((prev) => !prev);
@@ -120,58 +140,58 @@ export default function Topbar({
             </p>
           </div>
         </button>
-      </div>
 
-      {showAdminMenu && (
-        <div className="fixed right-4 top-4 z-[100] w-80 rounded-2xl border border-brand-rose/30 bg-white/95 p-3 shadow-2xl dark:border-white/10 dark:bg-slate-900/95 md:right-6 md:top-6">
-          <p className="text-sm font-semibold">Admin quick actions</p>
-          <div className="mt-2 space-y-2 text-sm">
-            {!isAdmin && (
-              <div className="rounded-lg bg-slate-100/70 p-3 dark:bg-white/5">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Admin Login</p>
-                <input
-                  value={username}
-                  onChange={(event) => setUsername(event.target.value)}
-                  placeholder="Username"
-                  className="mb-2 w-full rounded-lg border border-slate-300/50 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-brand-rose dark:border-white/20 dark:bg-black/20 dark:text-white"
-                />
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  placeholder="Password"
-                  className="mb-2 w-full rounded-lg border border-slate-300/50 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-brand-rose dark:border-white/20 dark:bg-black/20 dark:text-white"
-                />
-                <button
-                  onClick={handleAdminLogin}
-                  className="w-full rounded-lg bg-gradient-to-r from-brand-rose to-brand-pink px-3 py-1.5 text-xs font-semibold text-white"
-                >
-                  Login to Admin Dashboard
-                </button>
-              </div>
-            )}
+        {showAdminMenu && (
+          <div className="fixed right-4 top-4 z-[100] w-80 rounded-2xl border border-brand-rose/30 bg-white/95 p-3 shadow-2xl dark:border-white/10 dark:bg-slate-900/95 md:right-6 md:top-6">
+            <p className="text-sm font-semibold">Admin quick actions</p>
+            <div className="mt-2 space-y-2 text-sm">
+              {!isAdmin && (
+                <div className="rounded-lg bg-slate-100/70 p-3 dark:bg-white/5">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Admin Login</p>
+                  <input
+                    value={username}
+                    onChange={(event) => setUsername(event.target.value)}
+                    placeholder="Username"
+                    className="mb-2 w-full rounded-lg border border-slate-300/50 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-brand-rose dark:border-white/20 dark:bg-black/20 dark:text-white"
+                  />
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    placeholder="Password"
+                    className="mb-2 w-full rounded-lg border border-slate-300/50 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-brand-rose dark:border-white/20 dark:bg-black/20 dark:text-white"
+                  />
+                  <button
+                    onClick={handleAdminLogin}
+                    className="w-full rounded-lg bg-gradient-to-r from-brand-rose to-brand-pink px-3 py-1.5 text-xs font-semibold text-white"
+                  >
+                    Login to Admin Dashboard
+                  </button>
+                </div>
+              )}
 
-            <button
-              onClick={() => handleAction('Profile Settings')}
-              className="w-full rounded-lg bg-slate-100/70 px-3 py-2 text-left transition hover:bg-slate-200/70 dark:bg-white/5 dark:hover:bg-white/10"
-            >
-              👤 Profile Settings
-            </button>
-            <button
-              onClick={() => handleAction('Account Details')}
-              className="w-full rounded-lg bg-slate-100/70 px-3 py-2 text-left transition hover:bg-slate-200/70 dark:bg-white/5 dark:hover:bg-white/10"
-            >
-              📊 Account Details
-            </button>
-            <button
-              onClick={() => handleAction('logout')}
-              className="w-full rounded-lg bg-brand-rose/20 px-3 py-2 text-left text-brand-pink transition hover:bg-brand-rose/30"
-            >
-              🔐 Logout
-            </button>
+              <button
+                onClick={() => handleAction('Profile Settings')}
+                className="w-full rounded-lg bg-slate-100/70 px-3 py-2 text-left transition hover:bg-slate-200/70 dark:bg-white/5 dark:hover:bg-white/10"
+              >
+                👤 Profile Settings
+              </button>
+              <button
+                onClick={() => handleAction('Account Details')}
+                className="w-full rounded-lg bg-slate-100/70 px-3 py-2 text-left transition hover:bg-slate-200/70 dark:bg-white/5 dark:hover:bg-white/10"
+              >
+                📊 Account Details
+              </button>
+              <button
+                onClick={() => handleAction('logout')}
+                className="w-full rounded-lg bg-brand-rose/20 px-3 py-2 text-left text-brand-pink transition hover:bg-brand-rose/30"
+              >
+                🔐 Logout
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {authMessage && (
         <p className="w-full rounded-xl bg-brand-rose/15 px-3 py-2 text-xs text-brand-pink dark:text-brand-rose">

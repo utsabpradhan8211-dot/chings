@@ -1,4 +1,23 @@
-const tabs = ['Dashboard', 'Analytics', 'Insights', 'Orders', 'Products'];
+const tabs = [
+  { label: 'Dashboard', icon: '🏙️' },
+  { label: 'Analytics', icon: '📈' },
+  { label: 'Insights', icon: '🧠' },
+  { label: 'Orders', icon: '🍜' },
+  { label: 'Products', icon: '🛒' },
+];
+
+const koreanVisuals = [
+  {
+    title: 'Seoul Street Style',
+    image:
+      'https://images.unsplash.com/photo-1538485399081-7c8971301af8?auto=format&fit=crop&w=600&q=80',
+  },
+  {
+    title: 'K-Food Mood',
+    image:
+      'https://images.unsplash.com/photo-1498654896293-37aacf113fd9?auto=format&fit=crop&w=600&q=80',
+  },
+];
 
 export default function Sidebar({ activeTab, setActiveTab }) {
   return (
@@ -13,22 +32,33 @@ export default function Sidebar({ activeTab, setActiveTab }) {
       </div>
       <nav className="mt-7 space-y-2">
         {tabs.map((tab) => {
-          const active = activeTab === tab;
+          const active = activeTab === tab.label;
           return (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`w-full rounded-xl px-4 py-3 text-left text-sm font-medium transition-all duration-300 ease-in-out ${
+              key={tab.label}
+              onClick={() => setActiveTab(tab.label)}
+              className={`flex w-full items-center gap-2 rounded-xl px-4 py-3 text-left text-sm font-medium transition-all duration-300 ease-in-out ${
                 active
                   ? 'bg-gradient-to-r from-brand-rose/30 to-brand-pink/30 text-slate-900 shadow-glow ring-1 ring-brand-rose/40 dark:text-white'
                   : 'text-slate-600 hover:bg-black/5 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white'
               }`}
             >
-              {tab}
+              <span>{tab.icon}</span>
+              {tab.label}
             </button>
           );
         })}
       </nav>
+
+      <div className="mt-6 space-y-3">
+        <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-300">Korean vibe</p>
+        {koreanVisuals.map((visual) => (
+          <article key={visual.title} className="overflow-hidden rounded-xl border border-white/20">
+            <img src={visual.image} alt={visual.title} className="h-20 w-full object-cover" />
+            <p className="bg-black/20 px-3 py-2 text-xs">{visual.title}</p>
+          </article>
+        ))}
+      </div>
     </aside>
   );
 }
