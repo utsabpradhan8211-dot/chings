@@ -44,7 +44,7 @@ function Counter({ value }) {
   );
 }
 
-export default function OrdersPanel({ search, showRecentActivity = false }) {
+export default function OrdersPanel({ search, showRecentActivity = false, isAdmin = false }) {
   const [ordersData, setOrdersData] = useState(initial);
   const [editing, setEditing] = useState('');
   const [inputValue, setInputValue] = useState('');
@@ -115,21 +115,27 @@ export default function OrdersPanel({ search, showRecentActivity = false }) {
           <div key={key} className="glass rounded-2xl p-4">
             <p className="text-sm text-slate-300">{label}</p>
             <Counter value={ordersData[key]} />
-            <button
-              onClick={() => {
-                setEditing(key);
-                setInputValue(String(ordersData[key]));
-              }}
-              className="mt-3 rounded-lg bg-rose-400/20 px-2 py-1 text-xs hover:bg-rose-400/30"
-            >
-              Manual override
-            </button>
+            {isAdmin ? (
+              <button
+                onClick={() => {
+                  setEditing(key);
+                  setInputValue(String(ordersData[key]));
+                }}
+                className="mt-3 rounded-lg bg-brand-rose/20 px-2 py-1 text-xs hover:bg-brand-rose/30"
+              >
+                Manual override
+              </button>
+            ) : (
+              <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+                Login as admin to use manual override
+              </p>
+            )}
           </div>
         ))}
       </div>
 
       <AnimatePresence>
-        {editing && (
+        {editing && isAdmin && (
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -146,7 +152,7 @@ export default function OrdersPanel({ search, showRecentActivity = false }) {
               />
               <button
                 onClick={updateMetric}
-                className="rounded-lg bg-gradient-to-r from-rose-400 to-pink-500 px-3 py-2"
+                className="rounded-lg bg-gradient-to-r from-brand-rose to-brand-pink px-3 py-2"
               >
                 Update
               </button>
@@ -166,14 +172,14 @@ export default function OrdersPanel({ search, showRecentActivity = false }) {
           <motion.div
             animate={{ width: `${progress}%` }}
             transition={{ duration: 0.3 }}
-            className="h-full bg-gradient-to-r from-rose-400 to-pink-500"
+            className="h-full bg-gradient-to-r from-brand-rose to-brand-pink"
           />
         </div>
         <div className="mt-3 flex gap-2 text-xs">
           <span className="rounded-full bg-amber-400/20 px-2 py-1 text-amber-300">
             Pending: {status.pending}
           </span>
-          <span className="rounded-full bg-rose-400/20 px-2 py-1 text-rose-200">
+          <span className="rounded-full bg-brand-rose/20 px-2 py-1 text-brand-pink">
             Open Complaints: {status.openComplaints}
           </span>
           <span className="rounded-full bg-emerald-400/20 px-2 py-1 text-emerald-300">
@@ -209,7 +215,8 @@ export default function OrdersPanel({ search, showRecentActivity = false }) {
                     <select
                       value={row.status}
                       onChange={(e) => updateRowStatus(row.id, e.target.value)}
-                      className="rounded-lg border border-slate-300/40 bg-transparent px-2 py-1 text-xs"
+                      disabled={!isAdmin}
+                      className="rounded-lg border border-slate-300/40 bg-transparent px-2 py-1 text-xs disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {availableStatuses.map((item) => (
                         <option key={item} value={item} className="text-slate-900">

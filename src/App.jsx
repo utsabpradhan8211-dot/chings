@@ -14,6 +14,7 @@ export default function App() {
   const [search, setSearch] = useState('');
   const [darkMode, setDarkMode] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const timeout = setTimeout(() => setLoading(false), 600);
@@ -28,7 +29,7 @@ export default function App() {
     if (loading) {
       return (
         <div className="glass flex h-64 items-center justify-center rounded-2xl">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-rose-300/30 border-t-rose-400" />
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-rose/30 border-t-brand-pink" />
         </div>
       );
     }
@@ -37,17 +38,17 @@ export default function App() {
       return (
         <div className="space-y-4">
           <KPISection />
-          <OrdersPanel search={search} showRecentActivity />
+          <OrdersPanel search={search} showRecentActivity isAdmin={isAdmin} />
         </div>
       );
     }
     if (activeTab === 'Analytics') return <AnalyticsCharts />;
     if (activeTab === 'Insights') return <Insights />;
-    if (activeTab === 'Orders') return <OrdersPanel search={search} />;
+    if (activeTab === 'Orders') return <OrdersPanel search={search} isAdmin={isAdmin} />;
     if (activeTab === 'Products') return <Products />;
 
     return null;
-  }, [activeTab, loading, search]);
+  }, [activeTab, isAdmin, loading, search]);
 
   return (
     <ErrorBoundary>
@@ -55,7 +56,7 @@ export default function App() {
         className={`min-h-screen p-4 transition-colors duration-300 md:p-6 ${
           darkMode
             ? 'bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100'
-            : 'bg-gradient-to-br from-slate-100 via-white to-rose-50 text-slate-900'
+            : 'bg-gradient-to-br from-slate-100 via-white to-brand-rose/10 text-slate-900'
         }`}
       >
         <div className="mx-auto grid max-w-[1600px] gap-4 lg:grid-cols-[280px_1fr]">
@@ -66,6 +67,9 @@ export default function App() {
               setSearch={setSearch}
               darkMode={darkMode}
               setDarkMode={setDarkMode}
+              isAdmin={isAdmin}
+              onAdminLogin={() => setIsAdmin(true)}
+              onLogout={() => setIsAdmin(false)}
             />
             <motion.div
               key={activeTab}
