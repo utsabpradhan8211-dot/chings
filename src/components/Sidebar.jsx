@@ -1,4 +1,3 @@
-codex/create-separate-complaints-tab
 const tabs = ['Dashboard', 'Analytics', 'Insights', 'Orders', 'Complaints', 'Products'];
 
 
@@ -14,8 +13,6 @@ const koreanVisuals = [
       'https://images.unsplash.com/photo-1498654896293-37aacf113fd9?auto=format&fit=crop&w=600&q=80',
   },
 ];
- main
-
 export default function Sidebar({ activeTab, setActiveTab }) {
   return (
     <aside className="glass h-full w-full rounded-3xl p-4 sm:p-5 lg:w-72">
@@ -29,19 +26,18 @@ export default function Sidebar({ activeTab, setActiveTab }) {
       </div>
       <nav className="mt-7 space-y-2">
         {tabs.map((tab) => {
-          const active = activeTab === tab.label;
+          const active = activeTab === tab;
           return (
             <button
-              key={tab.label}
-              onClick={() => setActiveTab(tab.label)}
+              key={tab}
+              onClick={() => setActiveTab(tab)}
               className={`flex w-full items-center gap-2 rounded-xl px-4 py-3 text-left text-sm font-medium transition-all duration-300 ease-in-out ${
                 active
                   ? 'bg-gradient-to-r from-brand-rose/30 to-brand-pink/30 text-slate-900 shadow-glow ring-1 ring-brand-rose/40 dark:text-white'
                   : 'text-slate-600 hover:bg-black/5 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white'
               }`}
             >
-              <span>{tab.icon}</span>
-              {tab.label}
+              {tab}
             </button>
           );
         })}
