@@ -25,6 +25,7 @@ const statusClasses = {
 };
 
 const availableStatuses = ['Delivered', 'Pending', 'Resolved'];
+const complaintStatuses = ['Open', 'Investigating', 'Resolved', 'Escalated'];
 
 function Counter({ value }) {
   return (
@@ -47,6 +48,7 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
   const [pairedValue, setPairedValue] = useState('');
   const [overrideMessage, setOverrideMessage] = useState('');
   const [rows, setRows] = useState(initialRows);
+  const [complaints, setComplaints] = useState(complaintRows);
 
   const status = useMemo(() => {
     const pending = ordersData.received - ordersData.delivered;
@@ -134,6 +136,12 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
 
   const updateRowStatus = (id, nextStatus) => {
     setRows((prev) => prev.map((row) => (row.id === id ? { ...row, status: nextStatus } : row)));
+  };
+
+  const updateComplaintStatus = (id, nextStatus) => {
+    setComplaints((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, status: nextStatus } : item)),
+    );
   };
 
   return (
@@ -276,7 +284,60 @@ export default function OrdersPanel({ search, showRecentActivity = false, isAdmi
           </tbody>
         </table>
       </div>
+ codex/create-separate-complaints-tab
+      <div className="glass overflow-x-auto rounded-2xl p-4">
+        <h3 className="mb-3 text-sm font-semibold">Complaints tracker</h3>
+        <table className="w-full text-left text-sm">
+          <thead className="text-slate-600 dark:text-slate-300">
+            <tr>
+              <th className="pb-2">Complaint ID</th>
+              <th className="pb-2">City</th>
+              <th className="pb-2">Issue</th>
+              <th className="pb-2">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {complaints.map((item) => (
+              <tr key={item.id} className="border-t border-white/10">
+                <td className="py-2">{item.id}</td>
+                <td>{item.city}</td>
+                <td>{item.issue}</td>
+                <td>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`rounded-full px-2 py-1 text-xs ${
+                        item.status === 'Resolved'
+                          ? 'bg-emerald-400/20 text-emerald-700 dark:text-emerald-300'
+                          : item.status === 'Escalated'
+                            ? 'bg-purple-400/20 text-purple-700 dark:text-purple-300'
+                            : item.status === 'Investigating'
+                              ? 'bg-amber-400/20 text-amber-700 dark:text-amber-300'
+                              : 'bg-red-400/20 text-red-700 dark:text-red-300'
+                      }`}
+                    >
+                      {item.status}
+                    </span>
+                    <select
+                      value={item.status}
+                      onChange={(e) => updateComplaintStatus(item.id, e.target.value)}
+                      disabled={!isAdmin}
+                      className="rounded-lg border border-slate-300/60 bg-white/70 px-2 py-1 text-xs text-slate-900 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-300/40 dark:bg-transparent dark:text-slate-100"
+                    >
+                      {complaintStatuses.map((statusItem) => (
+                        <option key={statusItem} value={statusItem} className="text-slate-900">
+                          {statusItem}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
+main
       {showRecentActivity && (
         <div className="glass rounded-2xl p-4">
           <h3 className="mb-3 text-sm font-semibold">Recent activity</h3>
