@@ -8,6 +8,7 @@ import AnalyticsCharts from './components/AnalyticsCharts';
 import Insights from './components/Insights';
 import Products from './components/Products';
 import ComplaintsPanel from './components/ComplaintsPanel';
+import AssetsPanel from './components/AssetsPanel';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 export default function App() {
@@ -48,6 +49,7 @@ export default function App() {
     if (activeTab === 'Orders') return <OrdersPanel search={search} isAdmin={isAdmin} />;
     if (activeTab === 'Complaints') return <ComplaintsPanel search={search} isAdmin={isAdmin} />;
     if (activeTab === 'Products') return <Products />;
+    if (activeTab === 'Assets') return <AssetsPanel />;
 
     return null;
   }, [activeTab, isAdmin, loading, search]);
