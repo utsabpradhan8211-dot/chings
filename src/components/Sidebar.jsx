@@ -5,7 +5,6 @@ const menuItems = [
   { label: 'Orders', icon: '📦' },
   { label: 'Complaints', icon: '🛎️' },
   { label: 'Products', icon: '🍜' },
-  { label: 'Assets', icon: '🖼️' },
 ];
 
 const koreanVisuals = [
