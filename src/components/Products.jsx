@@ -7,7 +7,7 @@ const catalog = [
     description: 'Mild Korean garlicky goodness.',
     packSize: '70g',
     price: 55,
-    image: '/assets/ai-uploads/k-start.png',
+    image: '/assets/ai-uploads/k-bold-x2.png',
   },
   {
     id: 2,
@@ -17,7 +17,7 @@ const catalog = [
     description: 'Moderately spicy Korean punch.',
     packSize: '75g',
     price: 75,
-    image: '/assets/ai-uploads/k-bold.png',
+    image: '/assets/ai-uploads/k-fire-cup.png',
   },
   {
     id: 3,
@@ -37,7 +37,7 @@ const catalog = [
     description: 'Twin packs of our moderately spicy K-Bold!',
     packSize: '150g',
     price: 99,
-    image: '/assets/ai-uploads/k-bold-x2.png',
+    image: '/assets/ai-uploads/k-start.png',
   },
   {
     id: 5,
@@ -47,7 +47,7 @@ const catalog = [
     description: 'Late-night indulgence! Fiery Korean noodles.',
     packSize: '90g',
     price: 99,
-    image: '/assets/ai-uploads/k-fire-cup.png',
+    image: '/assets/ai-uploads/k-bold.png',
   },
 ];
 
